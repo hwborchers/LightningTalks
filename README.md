@@ -3,14 +3,19 @@ Presentations of Lightning Talks held at different locations.
 
 ## Talks in 2020
 
-* Nonlinear Regression - `nls()` and the [nlsr]() package
+* Nonlinear Regression - `nls()` and the 
+  [nlsr](https://cran.r-project.org/web/packages/nlsr/index.html) package
 
-* Subgroup Discovery - the [rsubgroup]() package
+* Subgroup Discovery - 
+  the [rsubgroup](https://cran.r-project.org/web/packages/rsubgroup/index.html) package
 
 ## Planned Talks
 
 * Tools for Classification and Regression problems  
-  [caret](http://topepo.github.io/caret/), [partykit](), or [regtools]()
+  [caret](http://topepo.github.io/caret/), 
+  [partykit](https://cran.r-project.org/web/packages/partykit/index.html), or
+  [regtools](https://cran.r-project.org/web/packages/regtools/vignettes/regtools.html)
    
 * What is '(extreme) gradient boosting'  
-  [lightgbm](https://github.com/Microsoft/LightGBM), [xgboost]()
+  [lightgbm](https://github.com/Microsoft/LightGBM), 
+  [xgboost](https://cran.r-project.org/web/packages/xgboost/index.html)
