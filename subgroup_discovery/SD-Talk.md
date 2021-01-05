@@ -1,14 +1,9 @@
----
-title: "Subgroup Discovery with the 'rsubgroup' package"
-author: "Hans W. Borchers<br/>Duale Hochschule BW, Mannheim"
-date: "June 2020"
-output:
-  distill::distill_article:
-    toc: true
-    theme: theme_distill.css
-    keep_md: true
-    self_contained: false
----
+
+# Subgroup Discovery with the 'rsubgroup' package
+
+Author: Hans W Borchers
+
+Date: June 2020
 
 ## Subgroup Discovery Systems
 
