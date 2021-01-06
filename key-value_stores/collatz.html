@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Hans W. Borchers" />
+
+<meta name="date" content="2020-04-03" />
+
+<title>Collatz and key-value stores</title>
+
+<script src="collatz_files/header-attrs-2.6/header-attrs.js"></script>
+<script src="collatz_files/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="collatz_files/bootstrap-3.3.5/css/cerulean.min.css" rel="stylesheet" />
+<script src="collatz_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="collatz_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="collatz_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="collatz_files/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="collatz_files/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="collatz_files/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="collatz_files/navigation-1.1/tabsets.js"></script>
+<link href="collatz_files/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="collatz_files/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+<link rel="stylesheet" href="blogging.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Collatz and key-value stores</h1>
+<h4 class="author">Hans W. Borchers</h4>
+<h4 class="date">April 3, 2020</h4>
+
+</div>
+
+
+<hr />
+<p><strong>Abstract</strong></p>
+<p>The data structure of key-value stores or associative arrays (computer science) come under different names in several programming languages, such as ‘dictionary’ (Python, Julia), ‘hash’ (Perl, Ruby, JavaScript), ‘map’ (Java, Haskell), or ‘table’ (Lua), etc. We will look at some R packages that provide this functionality.</p>
+<hr />
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>The Collatz problem, aka the <span class="math inline">\(3n+1\)</span> -Problem, is an unsolved mathematical problem.</p>
+<p>The problem is about sequences of numbers that are constructed according to a simple recursive law:</p>
+<p>Start with any natural number <span class="math inline">\(n &gt; 0\)</span>;<br />
+If <span class="math inline">\(n\)</span> is even, take <span class="math inline">\(n/2\)</span> next;<br />
+If <span class="math inline">\(n\)</span> is odd, take <span class="math inline">\(3n+1\)</span> next.<br />
+Repeat the procedure with the number obtained. Stop when <span class="math inline">\(n=1\)</span> is reached.</p>
+<p>For example, starting with <span class="math inline">\(n=7\)</span> one gets the sequence</p>
+<pre><code>7, 22, 11, 34, 17, 52, 26, 13, 40, 20, 10, 5, 16, 8, 4, 2, 1</code></pre>
+<p>Apparently, each such sequence will at some point generate a power of 2 and then end with …,4,2,1, regardless of the start number 𝑛. That is, there is no such sequence that is infinite or goes into a cycle without ever reaching 1.</p>
+<p>The <strong>collatz conjecture</strong> is thus:</p>
+<blockquote>
+<p>Every sequence of numbers constructed in this way will end in 1, no matter with which natural number one starts.</p>
+</blockquote>
+<hr />
+</div>
+<div id="some-simple-r-code" class="section level2">
+<h2>Some simple R code</h2>
+<p><em>numbers</em> is a package with functions from number theory and has a generalized <code>collatz()</code> function. Here we will us a simplified version that takes a number <code>n</code> as input and generates the sequence as defined above. We assume the Collatz assumption is true, so after a finite number of steps we will reach 1 and stop.</p>
+<pre class="r"><code>collatz &lt;- function(n) {
+    cseq &lt;- c(n)
+    while (n &gt; 1) {
+        if (n %% 2 == 0) n &lt;- n / 2
+        else n &lt;- 3*n + 1
+        cseq &lt;- c(cseq, n)
+    }
+    cseq
+}</code></pre>
+<p>We apply it to the number <code>n=7</code> as above:</p>
+<pre class="r"><code>collatz(7)</code></pre>
+<pre><code>##  [1]  7 22 11 34 17 52 26 13 40 20 10  5 16  8  4  2  1</code></pre>
+<p>We want to find numbers <span class="math inline">\(n\)</span> whose Collatz sequences are very long or reach very high numbers on their way down to 1. Let’s write the results into a matrix with three columns, the number <code>n</code> , the length of the sequence, and its maximum.</p>
+<pre class="r"><code>collatz_matrix &lt;- function(N) {
+    m &lt;- length(N)
+    C &lt;- matrix(NA, nrow = m, ncol = 3)
+    k &lt;- 0
+    for (n in N) {
+        k &lt;- k + 1
+        cseq &lt;- collatz(n)
+        C[k, ] &lt;- c(n, length(cseq), max(cseq))
+    }
+    C
+}</code></pre>
+<p>So <code>N</code> is a set of (not secessarily sequential) natural numbers. We test it for the first 10 numbers. The following output shows that 𝑛=9 has a slightly longer sequence and at some point also runs into the number 52.</p>
+<pre class="r"><code>collatz_matrix(1:10)</code></pre>
+<pre><code>      [,1] [,2] [,3]
+ [1,]    1    1    1
+ [2,]    2    2    2
+ [3,]    3    8   16
+ [4,]    4    3    4
+ [5,]    5    6   16
+ [6,]    6    9   16
+ [7,]    7   17   52
+ [8,]    8    4    8
+ [9,]    9   20   52
+[10,]   10    7   16</code></pre>
+<hr />
+</div>
+<div id="storing-intermediate-results" class="section level2">
+<h2>Storing intermediate results</h2>
+<p>We would like to find longer sequences for numbers up to, say, one million, also storing the intermediate results like sequences calculated, their length and maximum. A matrix (or even a date frame) does not seem a perfect place for this.</p>
+<p>So we will load the sequences in a key-value store and length and maximum in a column-oriented database (for later statistical calculations). As database we chhose the SQLite database through the R package RSQLite (unfortunately, MonetDBLite is not on CRAN anymore).</p>
+<p>For key-value stores the following packages provide implementations:</p>
+<ul>
+<li><em>hash</em></li>
+<li><em>filehash</em></li>
+<li><em>fastmap</em></li>
+<li><em>rredis</em></li>
+</ul>
+<p><em>hash</em> uses R environments to implement key-value pairs as variable names and values. <em>filehash</em> implements keys (as S4 objects) with values as serialized objects stored on disc. <em>fastmap</em> stores keys as C++ objects and values as R lists. <em>rredis</em> connects to <strong>Redis</strong>, an open-source, in-memory data store (that has to be installed by the user independently of R).</p>
+<p>We will look at all these possibilities and also at their timings.</p>
+<div id="the-hash-package" class="section level3">
+<h3>The ‘hash’ package</h3>
+<p>For the <em>hash</em> package, <code>H &lt;- hash()</code> generates a hash, <code>H[[&lt;key&gt;]] &lt;- &lt;value&gt;</code> will store a value for a key (which has to be a string), and <code>H[[&lt;key&gt;]]</code> will retrieve the value for that key.</p>
+<p>Besides that, there are <code>clear</code> and <code>delete</code> methods to remove all or specific key-values. <code>keys</code> returns all keys as a character vector, and <code>values</code> all values. Values can also be set or retrieved with the <code>$</code> operator, seting it to <code>NULL</code> removes the key-value pair.</p>
+<pre class="r"><code>H &lt;- hash::hash()
+
+N &lt;- 50000
+for (n in 1:N) {
+  cseq &lt;- collatz(n)
+  H[[as.character(n)]] &lt;- cseq
+}</code></pre>
+<pre><code>Error: protect(): protection stack overflow</code></pre>
+<p>So we get a “protection stack overflow” showing that this is not the right key-value store for our task. (I was not able to let this run with more than 50000 objects where it took 5.5 seconds.)</p>
+</div>
+<div id="the-filehash-package" class="section level3">
+<h3>The ‘filehash’ package</h3>
+<p>The <em>filehash</em> package provides a disk-based approach. <code>dbCreate()</code> generates a name for the hash file, <code>dbInit</code> associates it with a file on the disk. <code>dbInsert()</code> and <code>dbFetch()</code> set and get the values for keys.</p>
+<pre class="r"><code>filehash::dbCreate(&quot;collatz.db&quot;)
+cdb &lt;- filehash::dbInit(&quot;collatz.db&quot;)
+
+N &lt;- 1000000
+for (n in 1:N) {
+  cseq &lt;- collatz(n)
+  filehash::dbInsert(cdb, as.character(n), cseq)
+}
+dbUnlink(cbd)</code></pre>
+<p>A rough estimation of the time for inserting a key-value pair may be <span class="math inline">\(5\cdot 10^{-4}\)</span> seconds, and the size of the file on disk is about 1.2 GB. With <code>dbUnlink(cbd)</code> the file will be erased from disk.</p>
+<p>An overview of the available functions for handling <code>filehash</code> stores:</p>
+<pre><code>library(filehash)
+dbCreate(&lt;filename&gt;)        # file-based hash table
+db &lt;- dbInit(&lt;filename&gt;)    # initialize the connection
+dbLoad(db)                  # assign a store again
+dbInsert(db, &quot;key&quot;, value)  # or: db[[key]] &lt;- , db$&#39;key&#39; &lt;- 
+value &lt;- dbFetch(db, key)   # or: db[[key]], db$&#39;key&#39;
+dbExists(db, key)
+dbDelete(db, key)
+dbList(db)                  # list all keys
+dbUnlink()                  # delete the database from disk</code></pre>
+</div>
+<div id="the-fastmap-package" class="section level3">
+<h3>The ‘fastmap’ package</h3>
+<p>While <code>filehash</code> is wriite in pure R, <code>fastmap</code> has a C++ implementation.</p>
+<p>The <em>fastmap</em> package provides a quite easy and elegant interface for use. <code>H&lt;-fastmap()</code> will create a hash, and <code>H$set(&lt;key&gt;, &lt;value&gt;)</code>, <code>H$get()</code>, etc., have the expected meaning.</p>
+<pre class="r"><code>H &lt;- fastmap::fastmap()
+
+N &lt;- 1000000
+for (n in 1:N) {
+  cseq &lt;- collatz(n)
+  H$set(as.character(n), cseq)
+}</code></pre>
+<p>This takes about 180 secs on my machine. Given that the loop and running the <code>collatz</code> function for all these numbers takes 90 secs, we would have about <span class="math inline">\(1 \cdot 10^{-4}\)</span> seconds for each <code>set</code> operation.</p>
+<p>An overview of the available functions for handling <code>filehash</code> stores:</p>
+<pre><code>library(fastmap)
+db &lt;- fastmap(NULL)         # or: missing_default = 0
+db$set(key, value)          # also: mset
+db$get(key)                 # also: mget; missing = &lt;default&gt;
+db$has(keys)
+db$remove(keys)
+db$size()                   # no. of items in the set
+db$as_list(db)              # returns a named list
+db$reset()                  # clear all items, reset the store</code></pre>
+</div>
+<div id="the-rredis-package" class="section level3">
+<h3>The ‘rredis’ package</h3>
+<p>Redis is an open source, in-memory data structure store and can be used as a (non-relational) key-value database. Redis supports different kinds of abstract data structures, such as strings, lists, maps, sets, sorted sets, etc. It is quite suited for storing time series data.</p>
+<p>The <em>rredis</em> package provides an R client interface to Redis. It is assumed that the user has installed the Redis software, and that the <code>redis</code> command is lited in the “path”.</p>
+<p>To be done.</p>
+<hr />
+</div>
+</div>
+<div id="using-a-relational-database" class="section level2">
+<h2>Using a relational database</h2>
+<div id="storing-max-and-length" class="section level3">
+<h3>Storing max and length</h3>
+<p>For each <span class="math inline">\(n\)</span> we want to store the length and maximum of its Collatz sequence in a relational database. Unfortunately, <em>MonetDBLite</em> has been removed from CRAN and <em>MonetDB</em> requires the <strong>Monet</strong> database system to be installed by the user. Therefore we go back to SQLite.</p>
+<pre class="r"><code>library(DBI)
+library(RSQLite)
+# &#39;:memory:&#39; in-memory database
+con &lt;- dbConnect(RSQLite::SQLite(), dbname = &quot;:memory:&quot;)
+rs &lt;- dbSendQuery(con,
+    &quot;CREATE TABLE Collatz (n INTEGER, imax INTEGER, ilen INTEGER)&quot;)
+dbClearResult(rs)</code></pre>
+<p>To verify we list the table(s) and its field(s).</p>
+<pre class="r"><code>dbListTables(con)
+dbListFields(con, &quot;Collatz&quot;)
+dbReadTable(con, &quot;Collatz&quot;)</code></pre>
+<pre><code>[1] &quot;Collatz
+[1] n    imax ilen
+&lt;0 rows&gt; (or 0-length row.names)</code></pre>
+<p>We are ready to scan all Collatz sequences and fill the database for a set <span class="math inline">\(N\)</span> of natural numbers.</p>
+<pre class="r"><code>collatz_filldb &lt;- function(N) {
+    for (n in 1:N) {
+        cseq &lt;- H$get(as.character(n))
+        imax &lt;- max(cseq); ilen &lt;- length(cseq)
+        rs &lt;- dbSendQuery(con,
+                  paste(&quot;INSERT INTO Collatz VALUES (&quot;,
+                        n, &quot;,&quot;, imax, &quot;,&quot;, ilen, &quot;)&quot;, sep = &quot;&quot;))
+        dbClearResult(rs)
+    }
+}</code></pre>
+<pre class="r"><code>N &lt;- 1000000
+collatz_filldb(N)
+dbDisconnect()</code></pre>
+<p>This takes about 320 elapsed seconds, that is <span class="math inline">\(2 \cdot 10^{-4}\)</span> seconds per database operation.</p>
+</div>
+<div id="example-evaluations" class="section level3">
+<h3>Example evaluations</h3>
+<p>Now we can look at some results. For example, which numbers have the highest maximum in our range <span class="math inline">\(1 ... 10^6\)</span>? We can see that some of them do have a maximum of over 50 Billion.</p>
+<pre class="r"><code>rs &lt;- dbSendQuery(con,
+          &quot;SELECT * FROM Collatz WHERE imax &gt;= 50000000000&quot;)
+ans &lt;- dbFetch(rs)
+dbClearResult(rs)
+
+ans</code></pre>
+<pre><code>       n        imax ilen
+1 665215 52483285312  442
+2 704511 56991483520  243
+3 886953 52483285312  445
+4 997823 52483285312  440</code></pre>
+<p>And what are the numbers with the longest sequences?</p>
+<pre class="r"><code>rs &lt;- dbSendQuery(con,
+          &quot;SELECT * FROM Collatz WHERE ilen &gt;= 500&quot;)
+ans &lt;- dbFetch(rs)
+dbClearResult(rs)
+
+ans</code></pre>
+<pre><code>       n       imax ilen
+1 626331 7222283188  509
+2 704623 7222283188  504
+3 837799 2974984576  525
+4 939497 7222283188  507</code></pre>
+</div>
+<div id="example-plots" class="section level3">
+<h3>Example plots</h3>
+<p>We take a look at the last 10000 of our numbers …</p>
+<pre class="r"><code>rs &lt;- dbSendQuery(con,
+          &quot;SELECT * FROM Collatz WHERE n &gt;= 990001&quot;)
+m &lt;- dbFetch(rs)
+dbClearResult(rs)
+
+dbDisconnect(con)</code></pre>
+<p>… and plot length vs. maximum in gray, and as red circles all prime numbers among those numbers.</p>
+<pre class="r"><code>par(mar = c(3,3,3,1))
+plot(m$ilen, log(m$imax), col = &quot;darkgray&quot;, pch = 20)
+
+pinds &lt;- numbers::isPrime(m$n)
+points(m$ilen[pinds], log(m$imax[pinds]), col = &quot;darkred&quot;)</code></pre>
+<p><img src="collatz.png" /></p>
+<hr />
+</div>
+</div>
+<div id="efficiency-considerations" class="section level2">
+<h2>Efficiency considerations</h2>
+<p>It does not seem necessary to recalculate the whole Collatz sequence in every case. For instance, if <span class="math inline">\(n\)</span> is even then we have already generated the sequence for <span class="math inline">\(n/2\)</span> and can simply reuse that. This calls for a combination of storing and computing,</p>
+<pre class="r"><code>H &lt;- fastmap::fastmap()
+H$set(&#39;1&#39;, c(1)); H$set(&#39;2&#39;, c(2,1))
+nxt &lt;- function(n) {
+    if (n %% 2 == 0) n/2 else 3*n + 1
+}
+
+for (n in seq(3,1000000)) {
+    if (n %% 2 == 0) {
+        cseq &lt;- c(n, H$get(as.character(n/2)))
+    } else {
+        m &lt;- 3*n + 1
+        cseq &lt;- c(n, m)
+        while (m &gt;= n) {
+            m &lt;- nxt(m)
+            cseq &lt;- c(cseq, m)
+        }
+        cseq &lt;- c(cseq, H$get(as.character(m))[-1])
+    }
+    H$set(as.character(n), cseq)
+}</code></pre>
+<p>This takes about 20 seconds while the version with <em>fastmap</em> takes 180 seconds. Intermediate versions – where we look up keys to find out whether they have already been calculated – take about 60 seconds.</p>
+<hr />
+</div>
+<div id="appendix-write-your-own-hash-functions" class="section level2">
+<h2>Appendix: Write your own ‘hash’ functions</h2>
+<p>It’s not that difficult to write one’s own <em>hash</em> package. In the following implementation the key-value pairs are stored as variable names and their values in an underlying environment.</p>
+<div id="define-hash-functions" class="section level3">
+<h3>Define hash functions</h3>
+<pre class="r"><code>def.h &lt;- function() new.env(hash=TRUE, parent=emptyenv())
+len.h &lt;- function(dict) length(ls(envir=dict))
+set.h &lt;- function(key, val, dict) assign(as.character(key), val, envir=dict)
+get.h &lt;- function(key, dict, default=NULL) {
+    key &lt;- as.character(key)
+    if (exists(key, envir=dict)) { get(key, dict)
+    } else { default }
+}
+del.h &lt;- function(key, dict) {
+    key &lt;- as.character(key)
+    if (exists(key, envir=dict)) {
+        val &lt;- get.h(key, dict)
+        rm(list=c(key), envir=dict)
+    } else {
+        val &lt;- NULL
+    }
+    invisible(val)
+}
+has_key &lt;- function(key, dict) exists(as.character(key), envir=dict)
+keys.h &lt;- function(dict) ls(envir=dict)
+items.h &lt;- function(dict) as.list(dict)
+values.h &lt;- function(dict, mode=&#39;character&#39;) {
+    l &lt;- as.list(dict)
+    n &lt;- length(l)
+    if (n==0) invisible(NULL)
+    v &lt;- vector(&#39;character&#39;, n)
+    for (i in 1:n) v[i] &lt;- l[[i]]
+    if (mode==&#39;numeric&#39;) v &lt;- as.numeric(v)
+    return(v)
+}
+clear.h &lt;- function(dict) {
+    rm(list=keys.h(dict), envir=dict)
+}</code></pre>
+</div>
+<div id="define-a-counter" class="section level3">
+<h3>Define a counter</h3>
+<pre class="r"><code>counter &lt;- def.h()              # define a hash counter ... and count
+count &lt;- function(x, hash = counter) {
+  set.h(x, get.h(x, counter, default=0) + 1, counter)
+}</code></pre>
+</div>
+<div id="counting-example" class="section level3">
+<h3>Counting example</h3>
+<pre class="r"><code>C = sample(LETTERS, 1000, replace = TRUE)
+for (ch in C) count(ch, counter)
+
+Cdf = data.frame(Letter = keys.h(counter),
+                 Number = as.numeric(values.h(counter)))
+head(Cdf)</code></pre>
+<pre><code>##   Letter Number
+## 1      A     35
+## 2      B     40
+## 3      C     41
+## 4      D     35
+## 5      E     51
+## 6      F     34</code></pre>
+<pre class="r"><code>par(mar = c(3,3,2,1))
+barplot(Cdf$Number, names.arg = Cdf$Letter,
+        col = 7)</code></pre>
+<p><img src="collatz_files/figure-html/unnamed-chunk-6-1.png" /><!-- --></p>
+<p>As it turns out, this implementation is more efficient than the one in the <em>hash</em> package.</p>
+<hr />
+</div>
+</div>
+<div id="references" class="section level2">
+<h2>References</h2>
+<p>[Horner] Jeffrey Horner. “Hash Table Performance in R: Parts I-IV”. R-bloggers 2015.</p>
+<p><a href="https://jeffreyhorner.tumblr.com/post/114524915928/hash-table-performance-in-r-part-i">Part I</a> | <a href="https://jeffreyhorner.tumblr.com/post/116325104028/hash-table-performance-in-r-part-ii-in-part-i">Part II</a> | <a href="https://jeffreyhorner.tumblr.com/post/116690418898/hash-table-performance-in-r-part-iii-in-part">Part III</a> | <a href="https://jeffreyhorner.tumblr.com/post/117059271933/hash-table-performance-in-r-part-iv">Part IV</a></p>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
