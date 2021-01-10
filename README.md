@@ -1,5 +1,6 @@
 # LightningTalks
-Presentations of Lightning Talks held at different locations.
+
+*Presentations of Lightning Talks held at different locations.*
 
 ## Talks in 2021
 
