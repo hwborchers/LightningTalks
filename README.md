@@ -1,6 +1,12 @@
 # LightningTalks
 Presentations of Lightning Talks held at different locations.
 
+## Talks in 2021
+
+* Hashes, dictionaries, etc.: About key-value stores in R
+
+* Voting and decision procedures - the [vote](https://cran.r-project.org/web/packages/vote/index.html) package
+
 ## Talks in 2020
 
 * Nonlinear Regression - `nls()` and the 
