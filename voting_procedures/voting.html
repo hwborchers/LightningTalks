@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Hans W Borchers Duale Hochschule BW Mannheim" />
+
+
+<title>Abstimmungsverfahren (‘voting methods’)</title>
+
+<script src="voting_files/header-attrs-2.6/header-attrs.js"></script>
+<script src="voting_files/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="voting_files/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="voting_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="voting_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="voting_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="voting_files/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="voting_files/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="voting_files/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="voting_files/navigation-1.1/tabsets.js"></script>
+<link href="voting_files/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="voting_files/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+<link rel="stylesheet" href="style_rmd.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+.tocify-subheader {
+  display: inline;
+}
+.tocify-subheader .tocify-item {
+  font-size: 0.95em;
+}
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Abstimmungsverfahren (‘voting methods’)</h1>
+<h4 class="author">Hans W Borchers<br/>Duale Hochschule BW Mannheim</h4>
+<h4 class="date">Januar 2021</h4>
+
+</div>
+
+
+<hr />
+<div id="einführung" class="section level2">
+<h2>Einführung</h2>
+<p>Nehmen wir an, eine Gruppe von Teilnehmern einer R Benutzergruppe muss sich für das Schwerpunktthema ihres nächsten Treffens entscheiden. Verfügbare Themen könnten zum Beispiel sein:</p>
+<pre><code>A : &quot;R Markdown: Stunning new features&quot;
+B : &quot;Voting procedures: &#39;vote&#39; package&quot;
+C : &quot;Machine Learning with &#39;tidymodels&#39;&quot;
+D : &quot;Functional Time Series Analysis&quot;</code></pre>
+<p>Es sind 24 Mitglieder anwesend, die nach ihren Präferenzen, d.h. einer Rangfolge der Themen nach ihren persönlichen Interessen, gefragt werden. Es ergibt sich die folgende Liste (die hier zufällig erzeugt wird).</p>
+<pre><code>##       A B C D
+##  [1,] 3 4 2 1
+##  [2,] 2 4 1 3
+##  [3,] 1 3 4 2
+##  [4,] 1 2 3 4
+##  [5,] 3 2 1 4
+##  [6,] 1 3 4 2
+##  [7,] 2 1 3 4
+##  [8,] 4 1 3 2
+##  [9,] 1 2 3 4
+## [10,] 4 2 1 3
+## [11,] 2 4 3 1
+## [12,] 1 4 3 2
+## [13,] 2 4 1 3
+## [14,] 4 3 1 2
+## [15,] 3 4 1 2
+## [16,] 2 4 3 1
+## [17,] 2 3 4 1
+## [18,] 4 3 1 2
+## [19,] 1 4 3 2
+## [20,] 4 3 2 1
+## [21,] 3 1 2 4
+## [22,] 3 1 4 2
+## [23,] 4 1 2 3
+## [24,] 2 1 3 4</code></pre>
+<p>Wir haben hier eine sogenannte Präferenzmatrix. <code>P1[1, ] = c(3, 4, 2, 1)</code> bedeutet, Teilnehmer 1 bevorzugt ‘D’ vor ‘C’ vor ‘A’ vor ‘B’. Solche Listen könnten etwa aufgrund eingereichter Stimmzettel erstellt werden.</p>
+<p>Wie kann man auf Grundlage dieser Präferenzen eine “faire” Entscheidung herbeiführen? In der Literatur zur <strong>Entscheidungstheorie</strong> sind viele verschiedene Verfahren mit ihren Vor- und Nachteilen beschrieben worden.</p>
+<p>Als Verfahren zum Auszählen der Stimmen und zur Entscheidung über Alternativen werden wir einige Berechnungen von Hand durchführen und im Vergleich auch das Paket <em>vote</em> aufrufen.</p>
+<pre class="r"><code>library(vote)</code></pre>
+<hr />
+</div>
+<div id="mehrheitsverfahren-engl.-majority-voting" class="section level2">
+<h2>Mehrheitsverfahren (engl. ‘majority voting’)</h2>
+<div id="einfache-mehrheit" class="section level3">
+<h3>Einfache Mehrheit</h3>
+<p>Wir können einfach zählen, wie oft jede Alternative als erste Präferenz des Benutzers gewählt wird. Wie wir sehen, wird dann Thema ‘C’ der Gewinner sein.</p>
+<p>Um das Paket <em>vote</em> zu verwenden, müssen wir alle Stimmen außer <code>1</code> löschen. Wir sehen, dass die Alternative ‘C’ die meisten Stimmen erhält.</p>
+<pre class="r"><code>P_plurality = P1
+P_plurality[P_plurality != 1] = 0
+head(P_plurality)</code></pre>
+<pre><code>##      A B C D
+## [1,] 0 0 0 1
+## [2,] 0 0 1 0
+## [3,] 1 0 0 0
+## [4,] 1 0 0 0
+## [5,] 0 0 1 0
+## [6,] 1 0 0 0</code></pre>
+<pre class="r"><code># Count &#39;manually&#39;:
+apply(P_plurality, 2, sum)</code></pre>
+<pre><code>## A B C D 
+## 6 6 7 5</code></pre>
+<pre class="r"><code># Count with the &#39;vote&#39; package
+count.votes(P_plurality, method = &quot;plurality&quot;)</code></pre>
+<pre><code>## 
+## Results of Plurality voting
+## ===========================                           
+## Number of valid votes:   24
+## Number of invalid votes:  0
+## Number of candidates:     4
+## Number of seats:          1
+## 
+## 
+## |    |Candidate | Total| Elected |
+## |:---|:---------|-----:|:-------:|
+## |1   |C         |     7|    x    |
+## |2   |A         |     6|         |
+## |3   |B         |     6|         |
+## |4   |D         |     5|         |
+## |Sum |          |    24|         |
+## 
+## Elected: C</code></pre>
+</div>
+<div id="absolute-mehrheit" class="section level3">
+<h3>Absolute Mehrheit</h3>
+<p>Wieder hat jedes Mitglied eine Stimme. Wenn eine Alternative mehr als die Hälfte der Stimmen erreicht, wird sie gewählt. Andernfalls gehen die beiden (oder drei) besten Alternativen in eine Stichwahl. In <em>vote</em> wird dies als “tworound.runoff”-Methode bezeichnet.</p>
+<pre class="r"><code>count.votes(P_plurality, method = &quot;tworound.runoff&quot;)</code></pre>
+<pre><code>## 
+## Results of two-round-runoff voting
+## ==================================                           
+## Number of valid votes:   24
+## Number of invalid votes:  0
+## Number of candidates:     4
+## Number of seats:          1
+## 
+## 
+## |    |Candidate | Total| Percent| ROTotal| ROPercent| Elected |
+## |:---|:---------|-----:|-------:|-------:|---------:|:-------:|
+## |1   |A         |     6|    25.0|       6|      46.2|         |
+## |2   |B         |     6|    25.0|       0|       0.0|         |
+## |3   |C         |     7|    29.2|       7|      53.8|    x    |
+## |4   |D         |     5|    20.8|       0|       0.0|         |
+## |Sum |          |    24|   100.0|      13|     100.0|         |
+## 
+## Elected: C 
+## 
+## Runoff candidates chosen by a coin toss.</code></pre>
+<p>Im obigen Fall sollten ‘A’, ‘B’ und ‘C’ in der zweiten Runde laufen. Leider lässt <em>vote</em> diesen Fall nicht zu. Deshalb heißt es, die Kandidaten für die Stichwahl werden durch Münzwurf ausgewählt.</p>
+<p>Stattdessen können wir wieder ‘per Hand’ die schwächste Alternative löschen und auf die übrig gebliebenen Alternativen die gleiche Methode anwenden.</p>
+<pre class="r"><code># Remove column &#39;D&#39; from P1
+P2 = P1[, c(1,2,3)]
+
+# Generate the &#39;approval&#39; matrix
+for (n in 1:24) {
+    d = which.min(P2[n, ])
+    P2[n, ] = 0; P2[n, d] = 1
+}</code></pre>
+<p>Wir werden die Abstimmungsmethode auf die drei Alternativen anwenden.</p>
+<pre class="r"><code>count.votes(P_plurality, method = &quot;tworound.runoff&quot;)</code></pre>
+<pre><code>## 
+## Results of two-round-runoff voting
+## ==================================                           
+## Number of valid votes:   24
+## Number of invalid votes:  0
+## Number of candidates:     4
+## Number of seats:          1
+## 
+## 
+## |    |Candidate | Total| Percent| ROTotal| ROPercent| Elected |
+## |:---|:---------|-----:|-------:|-------:|---------:|:-------:|
+## |1   |A         |     6|    25.0|       6|      46.2|         |
+## |2   |B         |     6|    25.0|       0|       0.0|         |
+## |3   |C         |     7|    29.2|       7|      53.8|    x    |
+## |4   |D         |     5|    20.8|       0|       0.0|         |
+## |Sum |          |    24|   100.0|      13|     100.0|         |
+## 
+## Elected: C 
+## 
+## Runoff candidates chosen by a coin toss.</code></pre>
+<p>Leider stellt sich in diesem Fall wieder ein ‘Patt’ und abermals muss ein Gewinner durch “Münzwurf” entschieden werden.</p>
+<hr />
+</div>
+</div>
+<div id="positionsverfahren-engl.-positional-rules" class="section level2">
+<h2>Positionsverfahren (engl. ‘positional rules’)</h2>
+<div id="borda" class="section level3">
+<h3>Borda</h3>
+<p>Die Mehrheitsverfahrenerfahren berücksichtigen nicht, wie oft die Themen auf den Rängen 2, 3 oder 4 gewählt werden? Stattdessen können Punkte vergeben werden, bei <code>k</code> Alternativen <code>k-1</code> Punkte für den ersten Platz, usw., einen Punkt für den vorletzten Platz und <code>0</code> Punkte für den letzten (oder <code>k</code> bis 1 Punkte).</p>
+<p>Dieses Verfahren wird oft als Borda-Verfahren bezeichnet und zum Beispiel beim “European Song Contest” (ESC) oder bei Formel-1 Rennen angewandt.</p>
+<pre class="r"><code>P3 = 4 - P1
+apply(P3, 2, sum)</code></pre>
+<pre><code>##  A  B  C  D 
+## 37 32 38 37</code></pre>
+<p>Der Gewinner wäre ‘C’ und ‘B’ wäre die schlechteste aller Alternativen. Der Grund ist offensichtlich, dass ‘C’ öfters als ‘A’ oder ‘D’ in der Präferenzliste der Teilnehmer auftaucht.</p>
+<p>Die Borda-Regel kommt im <em>vote</em> Paket leider nicht vor.</p>
+</div>
+<div id="pairwise-comparisons" class="section level3">
+<h3>Pairwise comparisons</h3>
+<p>Wir können uns ansehen, wie oft Alternativen in paarweisen Vergleichen bevorzugt werden. Wir schauen uns also an, wie viele Benutzer ‘A’ gegenüber ‘B’ bevorzugen und wie viele ‘B’ gegenüber ‘A’ bevorzugen, unabhängig davon, wo in ihrer Präferenzliste dies geschieht.</p>
+<p>Die Ausrechnung ist ein wenig komplizierter.</p>
+<pre class="r"><code>library(hash)</code></pre>
+<pre><code>## hash-2.2.6.1 provided by Decision Patterns</code></pre>
+<pre class="r"><code>H = hash()
+for (n in 1:24) {
+    for (i in 1:3) {
+        for (j in (i+1):4) {
+            k = paste(alternatives[P1[n,i]], alternatives[P1[n,j]])
+            if (has.key(k, H)) {
+                H[k] = values(H, k) + 1
+            } else {
+                H[k] = 1
+            }
+        }
+    }
+}
+
+for (cp in c(&#39;A B&#39;, &#39;A C&#39;, &#39;A D&#39;, &#39;B C&#39;, &#39;B D&#39;, &#39;C D&#39;)) {
+    x = values(H, cp)
+    cat(cp, &#39;:\t&#39;, x, &#39;:&#39;, (24-x), &#39;\n&#39;)
+}</code></pre>
+<pre><code>## A B :     13 : 11 
+## A C :     13 : 11 
+## A D :     11 : 13 
+## B C :     11 : 13 
+## B D :     11 : 13 
+## C D :     12 : 12</code></pre>
+<p>Wenn wir mit einem Vergleich ‘A’ vs. ‘B’ und ‘C’ beginnen, dann wird ‘D’ gewinnen. Wenn wir zum Beispiel mit ‘C’ gegen ‘D’ beginnen, dann kann ‘A’ gewinnen, da es ‘B’ und ‘C’ dominiert. Aber wenn wir mit ‘D’ gegen ‘A’ und ‘B’ beginnen, dann wird ‘C’ gewinnen.</p>
+<p>Das Gleiche können wir mit <code>count.votes()</code> und der <em>Condorcet</em>-Abstimmungsmethode sehen.</p>
+<pre class="r"><code>count.votes(P2, method = &quot;condorcet&quot;)</code></pre>
+<pre><code>## 
+## Results of Condorcet voting
+## ===========================                           
+## Number of valid votes:   24
+## Number of invalid votes:  0
+## Number of candidates:     3
+## Number of seats:          0
+## 
+## 
+## |   |  A|  B|  C| Total| Loser |
+## |:--|--:|--:|--:|-----:|:-----:|
+## |A  |  0|  1|  0|     1|       |
+## |B  |  0|  0|  0|     0|   x   |
+## |C  |  0|  1|  0|     1|       |
+## 
+## There is no condorcet winner (no candidate won over all other candidates).
+## Condorcet loser: B</code></pre>
+<hr />
+</div>
+</div>
+<div id="zustimmungsregel" class="section level2">
+<h2>Zustimmungsregel</h2>
+<div id="approval-voting" class="section level3">
+<h3>‘Approval voting’</h3>
+<p>Beim ‘approval voting’ hat jeder Teilnehmer (höchstens) so viele Stimmen, wie es Alternativen gibt. Er muss (sollte?) nicht alle Stimmen vergeben, aber er kann nicht Stimmen auf bestimmten Alternativen anhäufen.</p>
+<p>Wir simulieren eine solche Abstimmung.</p>
+<pre class="r"><code>B = matrix(0, 24, 4, dimnames = list(1:24, c(&quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;)))
+for (i in 1:24) {
+    k = sample(c(1,2,3), 1, prob = c(0.1, 0.6, 0.3))
+    a = P1[i, 1:k]
+    B[i, a] = 1
+}
+head(B)</code></pre>
+<pre><code>##   A B C D
+## 1 0 0 1 1
+## 2 0 1 0 1
+## 3 1 0 1 1
+## 4 1 1 1 0
+## 5 0 1 1 0
+## 6 1 0 1 0</code></pre>
+<pre class="r"><code># apply(B, 2, sum)
+
+count.votes(B, method = &quot;approval&quot;)</code></pre>
+<pre><code>## 
+## Results of Approval voting
+## ==========================                           
+## Number of valid votes:   24
+## Number of invalid votes:  0
+## Number of candidates:     4
+## Number of seats:          1
+## 
+## 
+## |    |Candidate | Total| Elected |
+## |:---|:---------|-----:|:-------:|
+## |1   |D         |    14|    x    |
+## |2   |A         |    12|         |
+## |3   |B         |    12|         |
+## |4   |C         |    12|         |
+## |Sum |          |    50|         |
+## 
+## Elected: D</code></pre>
+<p>In vielen Abstimmungen wird das Häufen von Stimmen auf bestimmten Alternativen erlaubt. Davon ist dringend abzuraten, weil es die Möglichkeit der Manipulation von Wahlen durch Vorabsprachen eröffnet.</p>
+</div>
+<div id="scoring" class="section level3">
+<h3>‘Scoring’</h3>
+<p>Beim ‘scoring’ werden die Teilnehmer aufgefordert, alle Alternativen auf einer Skala von 0 bis <code>k</code> zu bewerten. Gewinner ist dann die Alternative mit dem höchsten aggregierten Bewertung.</p>
+<pre class="r"><code>C = matrix(0, 24, 4, dimnames = list(1:24, c(&quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;)))
+for (n in 1:24) {
+    k = sample(c(2, 3), 1)              # how many
+    j = sample(1:4, k)
+    C[n, j] = sample(0:8, k)
+}
+head(C)</code></pre>
+<pre><code>##   A B C D
+## 1 5 0 0 1
+## 2 0 4 0 7
+## 3 0 0 7 0
+## 4 0 3 0 1
+## 5 8 7 0 0
+## 6 0 0 0 5</code></pre>
+<p>Es werden einfach die Summen in den Spalten gebildet.</p>
+<pre class="r"><code>count.votes(C, method = &quot;score&quot;,
+            max.score = 8, larger.wins = TRUE)</code></pre>
+<pre><code>## 
+## Results of Score voting
+## =======================                           
+## Number of valid votes:   24
+## Number of invalid votes:  0
+## Number of candidates:     4
+## Number of seats:          1
+## 
+## 
+## |    |Candidate | Total| Elected |
+## |:---|:---------|-----:|:-------:|
+## |1   |C         |    72|    x    |
+## |2   |A         |    68|         |
+## |3   |B         |    52|         |
+## |4   |D         |    52|         |
+## |Sum |          |   244|         |
+## 
+## Elected: C</code></pre>
+<p>Die Benotungen sollten möglichst objektiv sein und nicht mit den Interessen der Teilnehmer auf ein gutes Ranking ihrer Favoriten kollidieren.</p>
+<hr />
+</div>
+</div>
+<div id="weitere-verfahren" class="section level2">
+<h2>Weitere Verfahren</h2>
+<div id="stv-single-transferable-vote" class="section level3">
+<h3>STV: ‘Single Transferable Vote’</h3>
+<p>Beim STV Verfahren (deutsch “übertragbaren Einzelstimmgebung”) soll das Problem der unwirksamen Stimmen bei der reinen Mehrheitswahl beheben. Es werden mehrere Sieger ermittelt, daher dient es vor allem bei der Wahl von mehreren Peronen, etwa bei Wahlen zu Ausschüssen.</p>
+<p>Von jedem Wähler wird eine Rangfolge aller Kandidaten erstellt. Die Wahlzettel werden abgearbeitet; ist ein Kandidat bereits gewählt, kommt diese Stimme dem nächsten Kandidaten auf der persönlichen Rangliste des Wählers zugute.</p>
+<p>Das Verfahren ist komplizierter als die bisherigen soll hier nur mithilfe des <em>vote</em> Paketes berechnet werden. Als Beispiel nehmen wir die Präferenzmatrix vom Anfang – aber beachte, dass für STV auch weniger Stimmen als 4 pro Wähler möglich sind.</p>
+<p>Es sollen zwei Themen ausgewählt werden, daher <code>mcan=2</code>. Die zu erfüllende Quote ist <span class="math inline">\(Q = \lfloor\frac{v}{s+1}\rfloor + 1\)</span>, <span class="math inline">\(v\)</span> die abgegebenen Stimmen, <span class="math inline">\(s\)</span> die Anzahl der Sitze.</p>
+<pre class="r"><code>count.votes(P1, method = &quot;stv&quot;, mcan = 2, verbose =TRUE)</code></pre>
+<pre><code>## 
+## Single transferable vote count
+## ===================================
+## Number of votes cast is 24 
+## 
+## List of 1st preferences in STV counts: 
+## 
+## Count: 1 
+##   QUOTA A B C D
+## 1 8.001 6 6 7 5
+## Candidate D eliminated 
+## 
+## Count: 2 
+##   QUOTA A B C
+## 2 8.001 9 6 9
+## Candidate C elected using forwards tie-breaking method 
+## 
+## Count: 3 
+##   QUOTA     A     B
+## 3 8.001 9.444 6.555
+## Candidate A elected 
+## 
+## Results of Single transferable vote
+## ===================================                           
+## Number of valid votes:   24
+## Number of invalid votes:  0
+## Number of candidates:     4
+## Number of seats:          2
+## 
+## 
+## |           |     1| 2-trans|     2| 3-trans|     3|
+## |:----------|-----:|-------:|-----:|-------:|-----:|
+## |Quota      | 8.001|        | 8.001|        | 8.001|
+## |A          | 6.000|       3| 9.000|   0.444| 9.444|
+## |B          | 6.000|       0| 6.000|   0.555| 6.555|
+## |C          | 7.000|       2| 9.000|  -0.999|      |
+## |D          | 5.000|      -5|      |        |      |
+## |Tie-breaks |      |        |     f|        |      |
+## |Elected    |      |        |     C|        |     A|
+## |Eliminated |     D|        |      |        |      |
+## 
+## Elected: C, A</code></pre>
+<p>Thema <code>D</code> wird eliminiert wegen zu weniger Erststimmen – das hatten wir früher schon gesehen.</p>
+</div>
+<div id="coombs-wahl" class="section level3">
+<h3>Coombs Wahl</h3>
+<p>Es wird ein einzelner Sieger bestimmt. Ähnlich wie beim STV werden Stimmen übertragen. Allerdings werden so lange Kandidaten eliminiert und ihre Stimmen umverteilt, bis ein Kandidat die absolute Mehrheit erreicht.</p>
+<p>Diese Methode ist leider (bisher) nicht im <em>vote</em> Paket implementiert.</p>
+<hr />
+</div>
+</div>
+<div id="ein-unmöglichkeitssatz" class="section level2">
+<h2>Ein Unmöglichkeitssatz</h2>
+<p>Welches dieser Verfahren ist nun gerechter bzw. weniger manipulierbar?</p>
+<p>Vernünftigerweise sollte ein gerechtes Abstimmungsverfahren die folgenden Bedingungen erfüllen:</p>
+<ul>
+<li><ol start="21" style="list-style-type: upper-alpha">
+<li>Uneingeschränkter Definitionsbereich</li>
+</ol></li>
+<li><ol start="16" style="list-style-type: upper-alpha">
+<li>Pareto-Bdingung</li>
+</ol></li>
+<li><ol style="list-style-type: upper-roman">
+<li>Unabhängig von irrelevanten Alternativen</li>
+</ol></li>
+<li><ol start="4" style="list-style-type: upper-alpha">
+<li>Kein Diktator möglich</li>
+</ol></li>
+</ul>
+<p>Nun gilt:</p>
+<p><strong>Arrows Unmöglichkeitssatz</strong>: <em>Ist die Menge der Alternativen grösser als 2, dann gibt es kein allgemeines Abstimmungsverfahren, dass die Beingungen (U)-(D) alle erfüllt.</em></p>
+<p>Dieser Satz wird auch <em>Arrow’s paradox</em> genannt. Kenneth Arrow erhielt für seine Arbeiten zur “Theorie kollektiver Entscheidungen” (engl. ‘social choice theory’) im Jahr 1972 den Wirtschafts-Nobelpreis.</p>
+<hr />
+</div>
+<div id="nachweise" class="section level2">
+<h2>Nachweise</h2>
+<p>Deutsche Wikipedia:</p>
+<ul>
+<li><p><a href="https://de.wikipedia.org/wiki/Vorzugswahl">Präferenzwahlsysteme</a></p></li>
+<li><p><a href="https://de.wikipedia.org/wiki/Arrow-Theorem">Arrow Theorem</a></p></li>
+</ul>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = false;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
