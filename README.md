@@ -4,6 +4,8 @@
 
 ## Talks in 2021
 
+* Ordinary Differential Equations with R resp. Julia
+
 * Hashes, dictionaries, etc.: About key-value stores in R
 
 * Voting and decision procedures - the [vote](https://cran.r-project.org/web/packages/vote/index.html) package
