@@ -1,0 +1,138 @@
+---
+title: "Linear Regression Tree Models"
+author: "Hans W. Borchers<br/>Duale Hochschule BW Mannheim"
+date: "December 2020"
+output:
+  html_notebook:
+    toc: TRUE
+---
+
+```{r echo=FALSE}
+rmse = function(x, y) sqrt(sum((x-y)^2) / length(x))
+```
+
+## Introduction
+
+The idea of "Linear Regression Trees" is to grow a tree, similar to a decision tree, in which every end node is associated with linear regression for some or all of the variables in the data.
+
+The first idea and implementation was done by Ross Quinlan (of C4.5 fame) in his 'M5' program. The following packages contain implementations for building linear regression trees:
+
+* Package 'Cubist' with the `cubist()` function \
+  (Cubist was the name of the program that Quinlan sold in his RuleQuest company.)
+
+* Package 'partykit' provides functions `mob()` and lmtree() for \
+  "Model-based recursive partitioning based on least squares regression."
+
+* `M5P()` ("M5 Prime") in the RWeka package (part of the Weka software), \
+  a reimplementation of the M5 algorithm in Java.
+
+We will use the "Boston Housing" data as an example.
+
+```{r}
+library(mlbench)
+data("BostonHousing")
+House = BostonHousing[, -14]
+value = BostonHousing$medv
+```
+
+------------------------------------------------------------------------
+
+## Local regression trees
+
+### The 'Cubist' package
+
+```{r}
+library(Cubist)
+```
+
+The `cubist()` function takes as input a data frame (or matrix) and numerical output. We can decide about the number of 'committees' it will apply.
+
+```{r}
+mod1  = cubist(x = House, y = value)
+mod10 = cubist(x = House, y = value, committees = 10)
+```
+
+The `summary()` shows us the rules of the generated model. We can see the rules of the tree and the regression equations at the nodes.
+
+```{r}
+summary(mod1)
+```
+
+Use "root mean squared error" (RMSE) to compare the two models. Asking for more committees will improve the model significantly,
+
+```{r}
+rmse(value, predict(mod1, House))
+rmse(value, predict(mod10, House))
+```
+
+while the plot of actual versus fitted prices does not show such a clear advantage.
+
+```{r}
+par(mar = c(3, 3, 2, 1))
+plot(value, predict(mod1, House), col = "black",
+     main = "Predicted values for 1 and 10 committees")
+points(value, predict(mod10, House), col = "red"); grid()
+```
+
+
+### `lmtree` in package 'partykit'
+
+'partykit has two functions, `mob()` and `lmtree()`. The algorithmic work is performed by `mob()`, while `lmtree()` simplifies the user call.
+
+```{r warnings = FALSE}
+library(partykit)
+```
+
+The formula for `lmtree()` in general looks like:
+
+```
+y ~ z1 + ... + zl or 
+y ~ x1 + ... + xk | z1 + ... + zl
+```
+
+where the `z1, ..., zl` are the variables are used for building the tree, and the `x1, ..., xk` are used in the linear regressions; these two sets can be overlapping.
+
+```{r}
+mod3 = lmtree(medv ~ . | .,data = BostonHousing)
+```
+
+That is, we use all variables (except `medv` of course) both for tree splitting and for the linear regression equations.
+
+```{r}
+rmse(value, predict(mod3, House))
+```
+
+```{r}
+plot(mod3)
+```
+
+
+### 'M5' in RWeka
+
+-------------------------------------------------------------------------
+
+## Some comparisons
+
+### Comparison with CART
+
+
+### Comparison with Random Forest
+
+For a comparison, we will apply a default Random Forest on the data and calculate the RMS error.
+
+```{r}
+library(randomForest)
+rf = randomForest(medv ~ ., data = BostonHousing)
+rf
+```
+
+```{r}
+rmse(value, predict(rf))
+```
+
+Of course, this is not a reliable accuracy value, it only shows that Quinlan's M5 in 'Cubist' generates an excellent fit.
+
+------------------------------------------------------------------------
+
+## References
+
