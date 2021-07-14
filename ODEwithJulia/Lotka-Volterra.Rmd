@@ -1,0 +1,147 @@
+---
+title: "LotkaVolterra"
+author: "Hans W. Borchers"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Differential Equations with Julia
+
+### Systems of Equations
+
+The **Lotka-Volterra** equations attempt to describe the dynamics of biological systems in which two species interact, one as a predator and the other as prey. It is assumed that the habitat is largely isolated.
+
+The model consists of two intermingled differential equations of first order.
+
+$$
+  dy1/dt = p_1 \, y_1 + p_2 \, y_1 y_2
+$$
+$$
+  dy2/dt = p_3 \, y_2 + p_4 \, y_1 y_2
+$$
+
+Here $y_1$ is the number of prey ('rabbits'), $y_2$ the number of some predator ('foxes'). The coefficients characterize the interaction between the two species. For instance, $p_3$ should be negative as the predator will die out if there is no prey.
+
+
+We define a function that returns the two derivatives:
+
+```{r}
+f <- function(u, p, t) {
+    du1 <- p1 * u[1] + p2 * u[1] * u[2]
+    du2 <- p3 * u[2] + p4 * u[1] * u[2]
+    return( c(du1, du2) )
+}
+```
+
+with parameters `p1, ..., p4` and time span `[0, 240]` (of weeks or months, for example) and an initial population of `y0 <- c(50, 15)` (in thousands, say).
+
+```{r}
+p1 <-  0.1;  p2 <- -0.01 
+p3 <- -0.05; p4 <-  0.001
+u0 <- c(50, 15)
+tspan <- c(0, 240)
+```
+
+```{r}
+library(JuliaCall)
+julia_setup()
+
+library(diffeqr)
+de <- diffeqr::diffeq_setup()
+```
+
+We assign the time point at which a solution shall be returned (to make the plotted function smoother) and call Julia's Differential Equation solver as before.
+
+```{r}
+t <- seq(0, 240, by=2)
+
+prob <- de$ODEProblem(f, u0, tspan)
+sol <- de$solve(prob, rel.tol = 1e-08, saveat = t)
+
+# Convert Julia object into an R matrix
+y <- sapply(sol$u,identity)
+```
+
+For systems of equations the solution is returned as an array of arrays. We convert it into an R matrix with rows representing the time series solving the problem.
+
+```{r}
+par(mar=c(4, 2, 2, 1))
+plot(0, 0, type = 'n', xlim = c(0, 250), ylim = c(0, 100),
+     xlab = 'time', ylab = '',
+     main = 'Solution to Lotka-Volterra equations')
+grid()
+
+lines(t, y[1, ], col = 3, lwd = 1.5)
+lines(t, y[2, ], col = 2, lwd = 1.5)
+```
+
+The green line displays prey figures, the red line the predators. Both species develop in a periodic way, but the curves are not sine curves, actually they cannot be represented through elementary mathematical functions.
+
+
+### Second-order Differential Equations
+
+Differential Equations of second order, $y'' = f(t, y, y')$, cannot be solved directly, instead we solve them as a system of two first order equations with $y_1 = y, y_2 = y'$, rewritng the above equation as
+$$
+  dy_1/dt = y_2
+$$
+$$
+  dy_2/dt = f(t, y_1, y_2)
+$$
+
+As an example, we look at a (mathematical) pendulum. Newtonian Physics tell us that the pendulum swings according to the equation
+$$
+  \frac{d^2 u}{dt^2} = - \frac{g}{L} \sin(u)
+$$
+where $g$ is the gravity acceleration (on earth), $L$ the length of the pendulum, and $u$ the elongation from the vertical direction.
+
+```{r}
+g <- 9.81  # [m/s^2]
+L <- 1.0   # [m]
+```
+
+
+Following the 'trick' above function `f` looks as
+
+```{r}
+f <- function(u, p, t) {
+    du1 <- u[2]               # u1' = u'  = u2
+    du2 <- -g/L * sin(u[1])   # u2' = u'' = -g/L sin(u)
+    return( c(du1, du2) )
+}
+```
+
+We solve this system as we did before. Start with an elongation of 45 degrees (and no velocity) and observe for 10 seconds.
+
+```{r}
+u0 <- c(pi/4, 0)
+tspan <- c(0, 10)
+t <- seq(0, 10, length = 100)
+
+prob <- de$ODEProblem(f, u0, tspan)
+sol <- de$solve(prob, rel.tol = 1e-08, saveat = t)
+
+# Convert Julia object into an R matrix
+y <- sapply(sol$u,identity)
+```
+
+```{r}
+u <- y[1, ]     # elongation
+v <- y[2, ]     # angular velocity
+
+par(mar = c(3,2,2,1))
+plot(t, u, type = 'l', col = 4, lwd = 1.5,
+     main = "Pendulum (accurate and approximated)")
+lines(t, pi/4 * sin(sqrt(g/L)*t + pi/2), lty = 2)
+grid()
+```
+The pendulum swings back-and-forth with a frequency of about 2 seconds.
+
+For small values of $u$ is $\sin(u) \approx u$ and the differential equation reduces to $u'' = -g/L \, u$ and we know the symbolic solution $u = \sin(\sqrt{g/L} \, t)$ . Considering the starting conditions, the approximat solution would be $$ . This is plotted as a black, dotted line in the figure above.
+
+We can see that the approximated solution is oscillating slightly faster.
+
+
