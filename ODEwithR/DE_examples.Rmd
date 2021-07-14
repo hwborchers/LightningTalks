@@ -1,0 +1,429 @@
+---
+title: "ODE Examples.Rmd"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Enforced oscillations
+
+$$
+  z'' = -g/L\ \sin(z) + \frac{\omega^2}{L}\ Y\cos(z)\sin(\omega\ t)
+$$
+
+```{r}
+fun <- function(t, z) {
+    g <- 9.81
+    L <- 1.0
+    Y <- 0.25
+    w <- 2.5
+    dz1 <- z[2]
+    dz2 <- -g/L*sin(z[1]) + w^2/L*Y*cos(z[1])*sin(w*t)
+    c(dz1, dz2)
+}
+
+sol <- pracma::ode45(fun, 0, 60, c(0, 0))
+
+plot(sol$t, sol$y[, 1], type = 'l', lwd = 1.5, col = "darkblue",
+     ylim = c(-1, 1), xlab = "time", ylab = "elongation",
+     main = "Force acting on a pendulum")
+grid()
+```
+
+------------------------------------------------------------------------
+
+## Lotka-Volterra equation
+
+$$
+  \begin{align}
+  dx/dt &= a\ (1 - \frac{x(t)}{x_{max}})\ x(t) - b\ x(t)\ y(t)\\
+  dy/dt &= -c\ y(t) + d\ x(t)\ y(t)
+  \end{align}
+$$
+
+```{r}
+fn1 <- function(t, y, p) {
+    a <- p[1]; b <- p[2]
+    c <- p[3]; d <- p[4]
+    dx <- a*(1 - y[1]/3.0)*y[1] - b*y[1]*y[2]
+    # dx <-  a*y[1] - b*y[1]*y[2]
+    dy <- -c*y[2] + d*y[2]*y[1]
+    c(dx, dy)
+}
+
+fn2 <- function(t, y, p) {
+    a <- p[1]; b <- p[2]
+    c <- p[3]; d <- p[4]
+    # dx <- a*(1 - y[1]/2.0)*y[1] - b*y[1]*y[2]
+    dx <-  a*y[1] - b*y[1]*y[2]
+    dy <- -c*y[2] + d*y[2]*y[1]
+    c(dx, dy)
+}
+p0 <- c(2/3, 4/3, 1, 1)
+ic <- c(1.0, 1.0)
+
+sol1 <- pracma::ode45(fn1, 0, 50, ic, p = p0)
+sol2 <- pracma::ode45(fn2, 0, 50, ic, p = p0)
+
+plot(c(0, 50), c(0, 2.0), type = 'n',
+     xlab = "time", ylab = "", main = "Lotka-Volterra equations")
+lines(sol1$t, sol1$y[, 1], lty = 2, col = 1)
+lines(sol1$t, sol1$y[, 2], lty = 2, col = 2)
+
+lines(sol2$t, sol2$y[, 1], lwd = 2, col = 1)
+lines(sol2$t, sol2$y[, 2], lwd = 2, col = 2)
+
+grid()
+```
+
+------------------------------------------------------------------------
+
+## Van-der-Pol equation
+
+$$
+  y'' - \mu (1 - y^2)\ y' + y = 0
+$$
+
+```{r}
+vdP <- function(t, y, mu) {
+    dy1 <- y[2]
+    dy2 <- mu*(1-y[1]^2)*y[2] - y[1]
+    c(dy1, dy2)
+}
+
+mu1 <- 0.4; y1 <- c(0.1, 0.0)
+mu2 <- 2.0; y2 <- c(1.0, 1.0)
+sol1 = pracma::ode45(vdP, 0, 30, y1, mu = mu1)
+sol2 = pracma::ode45(vdP, 0, 30, y2, mu = mu2)
+
+plot(c(0, 30), c(-3, 3), type = 'n',
+     xlab = "time", ylab = "", main = "van-der-Pol equation")
+lines(sol1$t, sol1$y[, 1], lwd = 1.5, col = "navy")
+lines(sol2$t, sol2$y[, 1], lwd = 1.5, col = "firebrick")
+grid()
+```
+
+------------------------------------------------------------------------
+
+## Trajectory of a soccer ball
+
+$$
+  \begin{align}
+  x''(t) &= -r\ v\ x'(t)\\
+  y''(t) &= -r\ v\ y'(t) - g
+  \end{align}
+$$
+
+When the second derivatives are eliminated, we gat the following system
+of differential equations:
+
+$$
+  \begin{align}
+  y_1' &= y_2\\
+  y_2' &= -r\ v\ y_2\\
+  y_3' &= y_4\\
+  y_4' &= -r\ v\ y_4 - g
+  \end{align}
+$$
+
+where $v = v(t) = \sqrt{x'^2 + y'^2} = \sqrt{y_2^2 + y_4^2}$ is the
+speed of the ball. We assume a drag coefficient of $cw = 0.09$ and a
+cross-sectional area of $A = 0.0365$ [m\^2] for a diameter of $d = 21.5$
+cm for a standardized soccer ball.
+
+```{r}
+# Berechne Luftwiderstand
+cw = 0.4
+rho = 1.2
+A = 0.0365
+( r = cw * rho/2 * A )
+```
+
+```{r}
+g <- 9.81
+sball <- function(t, y) {
+    r <- 0.009
+    v <- sqrt(y[2]^2+y[4]^2)
+    dy1 <- y[2]
+    dy2 <- -r*v*y[2]
+    dy3 <- y[4]
+    dy4 <- -r*v*y[4] - g
+    c(dy1, dy2, dy3, dy4)
+}
+```
+
+```{r}
+y0 <- c(0, 20, 0, 20)
+sol <- pracma::ode45(sball, 0, 5, y0, atol = 1e-8)
+
+traj <- function(t) pracma::interp1(sol$t, sol$y[, 3], t)
+t1 <- uniroot(traj, c(1, 5))$root
+
+sol <- pracma::ode45(sball, 0, t1, y0, atol = 1e-8)
+
+plot(sol$y[, 1], sol$y[, 3], type = 'l', col = "darkblue")
+grid()
+```
+
+```{r}
+w = 45  # angle in degrees
+
+y0 <- c(0, 28*pracma::cosd(w), 0, 28*pracma::sind(w))
+sol <- pracma::ode45(sball, 0, 5, y0, atol = 1e-8)
+
+traj <- function(t) pracma::interp1(sol$t, sol$y[, 3], t)
+t1 <- uniroot(traj, c(1, 5))$root
+
+sol <- pracma::ode45(sball, 0, t1, y0, atol = 1e-8)
+
+plot(sol$y[, 1], sol$y[, 3], type = 'l', col = "darkblue")
+grid()
+```
+
+\# 35 51.69 m \# 36 52.10 m \# 38 52.57 m \# 39 52.81 m \# 40 52.88 m \#
+41 52.94 m \# 42 53.00 m \# 43 52.95 m \# 44 52.84 m \# 45 52.71 m \# 46
+52.55 m \# 48 51.98 m
+
+------------------------------------------------------------------------
+
+## The 'diffeqr' package
+
+We have to assume that Julia is installed on the computer and available
+through the PATH environment variable.
+
+### The flame model again
+
+```{r}
+# library(diffeqr)
+de <- diffeqr::diffeq_setup()
+
+f <- function(u, p, t) u^2 - u^3
+
+u0 <- 1/250
+tspan <- c(0, 500)
+
+probl <- de$ODEProblem(f, u0, tspan)
+sol <- de$solve(probl)
+```
+
+```{r}
+plot(sol$t, sol$u, type = 'l', col = "darkred")
+points(sol$t, sol$u, pch=20, col = "darkgray")
+grid()
+```
+
+NOTE: The 'diffeqr' package has been archived on CRAN, but I guess it
+will resurrect within a short time period.
+
+### Chemical reaction
+
+Another example: There are three chemical substances in a reactor with
+initial concentrations of 0.6, 0.2, and 0.2. The chemical engineer tells
+us that the concentrations of the substances change in the presence of
+the other substances according to the following laws:
+
+$$
+  \begin{align}
+  c_1' &= -k1c1 + k3c3\\
+  c_2' &= +k1c1 - k2c2\\
+  c_3' &= +k2c2 - k3c3
+  \end{align}
+$$
+
+The inital concentrations are $k1=0.3, k2=0.2, k3=0.5$.The
+concentrations after a suitable reaction time are to be determined.
+
+```{r}
+# library(diffeqr)
+de <- diffeqr::diffeq_setup()
+
+conc <- function(u, p, t) {
+  du1 <- -p[1]*u[1] + p[3]*u[3]
+  du2 <-  p[1]*u[1] - p[2]*u[2]
+  du3 <-  p[2]*u[2] - p[3]*u[3]
+  c(du1, du2, du3)
+}
+```
+
+```{r}
+u0 <- c(0.3,  0.2,  0.5)   # initial concentrations
+p0 <- c(0.55, 0.15, 0.30)  # reaction constants
+tspan <- c(0, 20)          # 20 minutes
+
+problem  <- de$ODEProblem(conc, u0, tspan, p0)
+solution <- de$solve(problem)
+```
+
+It can be convenient to turn this solution structure into an R matrix
+with sapply, having each row as a time series. The transpose of the
+matrix can be turned into a data frame.
+
+```{r}
+mat <- sapply(solution$u, identity)
+
+udf <- as.data.frame(t(mat))
+```
+
+```{r}
+matplot(solution$t, udf, type = 'l', col = c(1, 2, 4),
+        lwd = 1.5, lty = 1,
+        xlab = "time", ylab = "concentration", main = "Reaction profile")
+grid()
+```
+
+### The SIR model for spread of disease
+
+Epidemics are often model through so-called SIR models with
+
+-   $S = S(t)$ \# no. of susceptible persons
+-   $I = I(t)$ \#no. of infected persons
+-   $R = R(t)$ \#no. of recovered persons
+
+Here we treat one of the simplest SIR models, the Kermack-McKendrick
+model as a system of differential equations.
+
+$$
+  \begin{align}
+  S'(t) &= - \alpha\ I(t)\ S(t)\\
+  I'(t) &= \alpha\ I(t)\ S(t) - \beta\ I(t)\\
+  R'(t) &= \beta\ I(t)
+  \end{align}
+$$
+
+The corresponding R function is
+
+```{r}
+SIRmod <- function(t, y, p) {
+  a <- p[1]; b <- p[2]
+  dy1 <- -a*y[2]*y[1]
+  dy2 <-  a*y[2]*y[1] - b*y[2]
+  dy3 <-  b*y[2]
+  c(dy1, dy2, dy3)
+}
+```
+
+and for instance we solve it with the following parameters and initial
+conditions.
+
+```{r}
+a <- 0.6; b = 0.35
+y0 <- c(0.99999, 0.00001, 0)
+tspan <- c(0, 100)
+
+sol <- pracma::ode45(SIRmod, 0, 100, y0, p = c(a, b), atol = 1e-10)
+
+plot(c(0, 100), c(0, 1), type = 'n',
+     xlab = "days", ylab = "number of ... persons", main = "SIR model")
+grid()
+lines(sol$t, sol$y[, 1], col = 1, lwd = 1.5)
+lines(sol$t, sol$y[, 2], col = 2, lwd = 1.5)
+lines(sol$t, sol$y[, 3], col = 3, lwd = 1.5)
+legend(0, 0.8
+       , legend = c("susceptible", "infected", "recovered"),
+       , col = c(1,2,3), lwd = 1.5, bty = 'n')
+```
+
+Find more realistic parameters by solving the system of equations
+numerically, for a variety of initial conditions.
+
+See the 'odin' package for more advanced SIR models (deterministic and
+stochastic ones) and plots of their solutions.
+
+------------------------------------------------------------------------
+
+## Boundary Value Problems (BVP)
+
+### Deflection of a beam
+
+$$
+  y'' - \frac{T}{E\ I}\ y = \frac{wx(x-L)}{2\ E\ I}
+$$
+
+```{r}
+L <- 100
+w <- 100
+E <- 10e07
+T <- 500
+I <- 500
+```
+
+```{r}
+beam <- function(x, y) {
+  dy1 <- y[2]
+  dy2 <- T/(E*I)*y[1] + w*x*(x-L)/(2*E*I)
+  c(dy1, dy2)
+}
+```
+
+```{r}
+sol <- pracma::rk4sys(beam, 0, L, c(0, 0), n = 100)
+```
+
+Solving BVP with `pracma::bvp`
+
+```{r}
+f <- function(x) rep(0, length(x))
+g <- function(x) rep(T/(E*I), length(x))
+h <- function(x) w*x*(x-L)/(2*E*I)
+
+sol <- pracma::bvp(f, g, h, c(0, L), c(0, 0))
+
+plot(sol$xs, -sol$ys, type = 'l', col = "darkblue", lwd = 2)
+```
+
+Solve with package 'bvpSolve'
+
+```{r}
+beam2 <- function(x, y, parms) {
+  dy1 <- y[2]
+  dy2 <- T/(E*I)*y[1] + w*x*(x-L)/(2*E*I)
+  list(c(dy1, dy2))
+}
+
+init <- c(0, NA)
+end  <- c(0, NA)
+
+sol <- bvpSolve::bvptwp(yini = init, x = seq(0, L, length.out = 101),
+                fun = beam2, yend = end)
+
+xs <- sol[, 1]
+ys <- sol[, 2]
+plot(xs, -ys, type = 'l')
+```
+
+### Droplet
+
+The height of the surface of a water droplet satisfies
+
+$$
+  y'' = (y-1)*(1+y'^2)^{1.5}
+$$
+
+with $y(1.0) = y(-1.0) = 0$. We try to solve it with `bvpsolve` from the
+'bvpSolve' package.
+
+```{r}
+droplet <- function(t, y, params) {
+  dy1 <- y[2]
+  dy2 <- (y[1] - 1) * (1 + y[2]^2)^(3/2)
+  return( list(c(dy1, dy2)) )
+}
+
+init <- c(0, NA)
+end  <- c(0, NA)
+
+sol <- bvpSolve::bvpcol(yini = init, x = seq(-1, 1, length.out = 101),
+                          fun = droplet, yend = end)
+
+xs <- sol[, 1]
+ys <- sol[, 2]
+plot(xs, ys, type = 'l', col = 4, asp = 1, bty = 'n',
+     xlab = "", ylab = "", main = "Form of a droplet")
+grid()
+polygon(c(xs, -1), c(ys, 0), col = 4, border = "gray50")
+```
