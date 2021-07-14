@@ -25,4 +25,3 @@
 * Functional Time Series Analysis
 
 * Extreme Value Theory
-* 
