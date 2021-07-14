@@ -12,6 +12,8 @@
 
 ## Talks in 2020
 
+* Linear Regression Tree Models
+
 * Nonlinear Regression - `nls()` and the 
   [nlsr](https://cran.r-project.org/web/packages/nlsr/index.html) package
 
@@ -20,11 +22,7 @@
 
 ## Planned Talks
 
-* Tools for Classification and Regression problems  
-  [caret](http://topepo.github.io/caret/), 
-  [partykit](https://cran.r-project.org/web/packages/partykit/index.html), or
-  [regtools](https://cran.r-project.org/web/packages/regtools/vignettes/regtools.html)
-   
-* What is '(extreme) gradient boosting'  
-  [lightgbm](https://github.com/Microsoft/LightGBM), 
-  [xgboost](https://cran.r-project.org/web/packages/xgboost/index.html)
+* Functional Time Series Analysis
+
+* Extreme Value Theory
+* 
